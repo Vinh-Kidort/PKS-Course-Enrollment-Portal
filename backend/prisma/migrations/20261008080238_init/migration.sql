@@ -9,7 +9,7 @@ CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "full_name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "password_hash" TEXT NOT NULL,
+    "password_hash" TEXT NOT NULL,npx prisma migrate reset --force
     "role" "Role" NOT NULL DEFAULT 'STUDENT',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
