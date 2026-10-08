@@ -1,15 +1,66 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  fullName     String   @map("full_name")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(STUDENT)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  enrollments Enrollment[]
+
+  @@map("users")
+}
+
+model Course {
+  id               Int      @id @default(autoincrement())
+  name             String
+  category         String
+  instructor       String
+  shortDescription String   @map("short_description")
+  description      String
+  tuitionFee       Int      @map("tuition_fee") // VND, không có phần thập phân
+  capacity         Int
+  enrolledCount    Int      @default(0) @map("enrolled_count")
+  isHidden         Boolean  @default(false) @map("is_hidden")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  enrollments Enrollment[]
+
+  @@index([category])
+  @@map("courses")
+}
+
+model Enrollment {
+  id         Int              @id @default(autoincrement())
+  userId     Int              @map("user_id")
+  courseId   Int              @map("course_id")
+  status     EnrollmentStatus @default(ACTIVE)
+  enrolledAt DateTime         @default(now()) @map("enrolled_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@map("enrollments")
 }
