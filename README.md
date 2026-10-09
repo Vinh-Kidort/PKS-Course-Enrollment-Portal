@@ -140,7 +140,7 @@ Lệnh seed **xóa và tạo lại** toàn bộ khóa học và ghi danh (giữ 
 Test chạy trên database riêng `pks_test` và tự từ chối chạy nếu tên DB không chứa chữ `test`, nên không thể làm mất dữ liệu dev.
 
 ```bash
-docker compose exec db psql -U pks -d postgres -c "CREATE DATABASE pks_test;"   # chỉ lần đầu
+docker compose exec db psql -U pks -d postgres -c "CREATE DATABASE pks_test;"   
 cd backend
 cp .env.test.example .env.test
 npm test
