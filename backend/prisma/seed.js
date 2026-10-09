@@ -118,8 +118,8 @@ async function main() {
   }
 
   
-  await prisma.enrollment.deleteMany();
-  await prisma.course.deleteMany();
+  //await prisma.enrollment.deleteMany();
+  //await prisma.course.deleteMany();
 
   for (const { seats, ...data } of courseDefs) {
     const course = await prisma.course.create({
