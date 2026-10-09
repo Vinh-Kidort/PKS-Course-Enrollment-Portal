@@ -12,7 +12,7 @@ export default function ErrorState({ title = 'Đã có lỗi xảy ra', message,
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0 3.75h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
         </svg>
       </div>
-      <h3 className="text-base font-semibold text-red-900">{title}</h3>
+      <h2 className="text-base font-semibold text-red-900">{title}</h2>
       {message && <p className="mt-1 max-w-md text-sm text-red-700">{message}</p>}
       <div className="mt-5 flex gap-3">
         {onRetry && (

@@ -120,6 +120,9 @@ async function main() {
   
   //await prisma.enrollment.deleteMany();
   //await prisma.course.deleteMany();
+  await prisma.$executeRawUnsafe(
+    `TRUNCATE TABLE "enrollments", "courses" RESTART IDENTITY CASCADE;`
+  );
 
   for (const { seats, ...data } of courseDefs) {
     const course = await prisma.course.create({
