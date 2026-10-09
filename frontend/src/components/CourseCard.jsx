@@ -14,7 +14,7 @@ export default function CourseCard({ course }) {
         <Badge tone={isFull ? 'red' : 'green'}>{isFull ? 'Hết chỗ' : 'Còn chỗ'}</Badge>
       </div>
 
-      <h3 className="text-lg font-semibold leading-snug text-slate-900">{course.name}</h3>
+      <h2 className="text-lg font-semibold leading-snug text-slate-900">{course.name}</h2>
       <p className="mt-1 text-sm text-slate-500">Giảng viên: {course.instructor}</p>
       <p className="mt-3 line-clamp-3 text-sm text-slate-600">{course.shortDescription}</p>
 
@@ -28,6 +28,7 @@ export default function CourseCard({ course }) {
         <div
           className="h-1.5 overflow-hidden rounded-full bg-slate-100"
           role="progressbar"
+          aria-label={`Sĩ số: ${course.enrolledCount}/${course.capacity} học viên`}
           aria-valuenow={course.enrolledCount}
           aria-valuemin={0}
           aria-valuemax={course.capacity}

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ApiError } from './apiError';
+import { requestTracker } from './requestTracker';
 
 const TOKEN_KEY = 'pks_token';
 let memoryToken = null; // dự phòng khi localStorage bị chặn
@@ -43,14 +44,19 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  config.trackId = requestTracker.start(); // để báo khi máy chủ phản hồi quá chậm
   const token = tokenStorage.get();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    requestTracker.finish(response.config.trackId);
+    return response;
+  },
   (error) => {
+    requestTracker.finish(error.config?.trackId);
     let apiError;
     if (error.response) {
       const { status, data } = error.response;
