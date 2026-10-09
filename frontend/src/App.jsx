@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import GuestRoute from './components/GuestRoute';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import RouteErrorPage from './components/RouteErrorPage';
 import AuthProvider from './context/AuthProvider';
 import { queryClient } from './lib/queryClient';
 
@@ -22,37 +23,43 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      // Public
-      { index: true, element: <HomePage /> },
-      { path: 'courses/:id', element: <CourseDetailPage /> },
-
-      // Chỉ dành cho khách
       {
-        element: <GuestRoute />,
+        // Lỗi tải trang hoặc lỗi hiển thị chỉ thay phần nội dung, thanh điều hướng vẫn còn
+        errorElement: <RouteErrorPage />,
         children: [
-          { path: 'login', element: <LoginPage /> },
-          { path: 'register', element: <RegisterPage /> },
+          // Public
+          { index: true, element: <HomePage /> },
+          { path: 'courses/:id', element: <CourseDetailPage /> },
+
+          // Chỉ dành cho khách
+          {
+            element: <GuestRoute />,
+            children: [
+              { path: 'login', element: <LoginPage /> },
+              { path: 'register', element: <RegisterPage /> },
+            ],
+          },
+
+          // Chỉ học viên
+          {
+            element: <ProtectedRoute roles={['STUDENT']} />,
+            children: [{ path: 'my-courses', element: <MyCoursesPage /> }],
+          },
+
+          // Chỉ admin
+          {
+            path: 'admin',
+            element: <ProtectedRoute roles={['ADMIN']} />,
+            children: [
+              { index: true, element: <Navigate to="courses" replace /> },
+              { path: 'courses', element: <AdminCoursesPage /> },
+              { path: 'courses/:id/enrollments', element: <AdminEnrollmentsPage /> },
+            ],
+          },
+
+          { path: '*', element: <NotFoundPage /> },
         ],
       },
-
-      // Chỉ học viên
-      {
-        element: <ProtectedRoute roles={['STUDENT']} />,
-        children: [{ path: 'my-courses', element: <MyCoursesPage /> }],
-      },
-
-      // Chỉ admin
-      {
-        path: 'admin',
-        element: <ProtectedRoute roles={['ADMIN']} />,
-        children: [
-          { index: true, element: <Navigate to="courses" replace /> },
-          { path: 'courses', element: <AdminCoursesPage /> },
-          { path: 'courses/:id/enrollments', element: <AdminEnrollmentsPage /> },
-        ],
-      },
-
-      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ]);
@@ -62,7 +69,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RouterProvider router={router} />
-        <Toaster richColors position="bottom-right" closeButton />
+        {/* mobileOffset: nâng toast lên trên thanh ghi danh cố định ở đáy trang chi tiết (cao khoảng 80px) */}
+        <Toaster richColors position="bottom-right" closeButton mobileOffset={{ bottom: 96 }} />
       </AuthProvider>
     </QueryClientProvider>
   );
