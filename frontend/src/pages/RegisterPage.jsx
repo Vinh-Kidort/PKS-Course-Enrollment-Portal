@@ -4,11 +4,14 @@ import { toast } from 'sonner';
 import { authApi } from '../api/auth';
 import Button from '../components/ui/Button';
 import { FormField, TextInput } from '../components/ui/FormField';
+import PasswordInput from '../components/ui/PasswordInput';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getFieldErrors } from '../lib/apiError';
 
 const INITIAL = { fullName: '', email: '', password: '', confirmPassword: '' };
 
 export default function RegisterPage() {
+  useDocumentTitle('Đăng ký');
   const navigate = useNavigate();
   const [values, setValues] = useState(INITIAL);
   const [errors, setErrors] = useState({});
@@ -79,10 +82,24 @@ export default function RegisterPage() {
             {field('email', { type: 'email', autoComplete: 'email', placeholder: 'ban@example.com' })}
           </FormField>
           <FormField label="Mật khẩu" htmlFor="password" error={errors.password} hint="Tối thiểu 8 ký tự">
-            {field('password', { type: 'password', autoComplete: 'new-password' })}
+            <PasswordInput
+              id="password"
+              value={values.password}
+              error={errors.password}
+              disabled={submitting}
+              onChange={setField('password')}
+              autoComplete="new-password"
+            />
           </FormField>
           <FormField label="Nhập lại mật khẩu" htmlFor="confirmPassword" error={errors.confirmPassword}>
-            {field('confirmPassword', { type: 'password', autoComplete: 'new-password' })}
+            <PasswordInput
+              id="confirmPassword"
+              value={values.confirmPassword}
+              error={errors.confirmPassword}
+              disabled={submitting}
+              onChange={setField('confirmPassword')}
+              autoComplete="new-password"
+            />
           </FormField>
           <Button type="submit" loading={submitting} className="w-full">
             {submitting ? 'Đang tạo tài khoản...' : 'Đăng ký'}

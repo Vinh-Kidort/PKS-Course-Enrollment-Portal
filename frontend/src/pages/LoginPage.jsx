@@ -3,7 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import Button from '../components/ui/Button';
 import { FormField, TextInput } from '../components/ui/FormField';
+import PasswordInput from '../components/ui/PasswordInput';
 import { useAuth } from '../hooks/useAuth';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { getFieldErrors } from '../lib/apiError';
 
 const DEMO_ACCOUNTS = {
@@ -12,6 +14,7 @@ const DEMO_ACCOUNTS = {
 };
 
 export default function LoginPage() {
+  useDocumentTitle('Đăng nhập');
   const { login } = useAuth();
   const location = useLocation();
   const [values, setValues] = useState({ email: location.state?.email ?? '', password: '' });
@@ -76,9 +79,8 @@ export default function LoginPage() {
             />
           </FormField>
           <FormField label="Mật khẩu" htmlFor="password" error={errors.password}>
-            <TextInput
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete="current-password"
               value={values.password}
               error={errors.password}
