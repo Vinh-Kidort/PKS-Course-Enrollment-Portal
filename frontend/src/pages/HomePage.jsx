@@ -7,8 +7,10 @@ import ErrorState from '../components/ui/ErrorState';
 import { Select, TextInput } from '../components/ui/FormField';
 import { useCategories, useCourses } from '../hooks/useCourses';
 import { useDebounce } from '../hooks/useDebounce';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function HomePage() {
+  useDocumentTitle('Khóa học');
   const [params, setParams] = useSearchParams();
   const category = params.get('category') ?? '';
   const [searchInput, setSearchInput] = useState(params.get('q') ?? '');

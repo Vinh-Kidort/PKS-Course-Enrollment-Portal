@@ -3,10 +3,12 @@ import Badge from '../components/ui/Badge';
 import EmptyState from '../components/ui/EmptyState';
 import ErrorState from '../components/ui/ErrorState';
 import Skeleton from '../components/ui/Skeleton';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useMyEnrollments } from '../hooks/useEnrollments';
 import { ENROLLMENT_STATUS, formatCurrency } from '../lib/format';
 
 export default function MyCoursesPage() {
+  useDocumentTitle('Khóa học của tôi');
   const { data: enrollments, isLoading, isError, error, refetch, isFetching } = useMyEnrollments();
 
   let content;

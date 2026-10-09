@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function ForbiddenPage() {
+  useDocumentTitle('Không có quyền truy cập');
   return (
     <div className="py-20 text-center">
       <p className="text-6xl font-bold text-red-500">403</p>

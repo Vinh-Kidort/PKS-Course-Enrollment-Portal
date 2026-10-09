@@ -3,11 +3,14 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
 import { Select } from '../../components/ui/FormField';
+import ScrollTable from '../../components/ui/ScrollTable';
 import Skeleton from '../../components/ui/Skeleton';
 import { useAdminCourses, useCourseEnrollments } from '../../hooks/useAdmin';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ENROLLMENT_STATUS } from '../../lib/format';
 
 export default function AdminEnrollmentsPage() {
+  useDocumentTitle('Danh sách ghi danh');
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: courses = [] } = useAdminCourses(); // dùng cho ô chọn khóa học
@@ -41,7 +44,7 @@ export default function AdminEnrollmentsPage() {
     );
   } else {
     content = (
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+      <ScrollTable label="Bảng danh sách ghi danh">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
@@ -71,7 +74,7 @@ export default function AdminEnrollmentsPage() {
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollTable>
     );
   }
 

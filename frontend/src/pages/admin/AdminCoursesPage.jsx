@@ -6,11 +6,14 @@ import Button from '../../components/ui/Button';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
+import ScrollTable from '../../components/ui/ScrollTable';
 import Skeleton from '../../components/ui/Skeleton';
 import { useAdminCourses, useDeleteCourse, useSetCourseVisibility } from '../../hooks/useAdmin';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { formatCurrency } from '../../lib/format';
 
 export default function AdminCoursesPage() {
+  useDocumentTitle('Quản lý khóa học');
   const { data: courses, isLoading, isError, error, refetch, isFetching } = useAdminCourses();
   const visibility = useSetCourseVisibility();
   const remove = useDeleteCourse();
@@ -42,7 +45,7 @@ export default function AdminCoursesPage() {
     );
   } else {
     content = (
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+      <ScrollTable label="Bảng danh sách khóa học">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
@@ -105,7 +108,7 @@ export default function AdminCoursesPage() {
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollTable>
     );
   }
 

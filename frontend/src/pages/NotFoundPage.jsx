@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function NotFoundPage() {
+  useDocumentTitle('Không tìm thấy trang');
   return (
     <div className="py-20 text-center">
       <p className="text-6xl font-bold text-indigo-600">404</p>
