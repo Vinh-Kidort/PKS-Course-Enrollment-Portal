@@ -1,0 +1,1454 @@
+{
+  "info": {
+    "_postman_id": "003b9cee-cf38-47a5-8c93-9928c7e2066b",
+    "name": "PKS Course Portal API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44281579",
+    "_collection_link": "https://go.postman.co/collection/44281579-003b9cee-cf38-47a5-8c93-9928c7e2066b?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "1. Register - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\npm.test(\"Trả về đúng user DTO\", function () {\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.true;\r\n    pm.expect(res.data).to.have.property(\"email\");\r\n    pm.expect(res.data).to.not.have.property(\"passwordHash\");\r\n    pm.environment.set(\"tempRegisterEmail\", \"user_\" + Date.now() + \"@pks.test\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"Học viên Test\",\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"password\": \"Password@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Register - Duplicate Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn trùng email với mã lỗi 409\", function () {\r\n    pm.response.to.have.status(409);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"EMAIL_ALREADY_EXISTS\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"fullName\": \"Học viên Demo\",\r\n  \"email\": \"student@pks.test\",\r\n  \"password\": \"Password@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Login - Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Đăng nhập Student thành công 200\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data).to.have.property(\"token\");\r\n    \r\n    // Tự động gán token vào Environment\r\n    pm.environment.set(\"studentToken\", res.data.token);\r\n    console.log(\"Đã cập nhật studentToken thành công!\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"student@pks.test\",\r\n  \"password\": \"Student@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Đăng nhập Admin thành công 200\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    \r\n    // Tự động gán token vào Environment\r\n    pm.environment.set(\"adminToken\", res.data.token);\r\n    console.log(\"Đã cập nhật adminToken thành công!\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"admin@pks.test\",\r\n  \"password\": \"Admin@123\"\r\n}\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Login - Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 401 khi sai mật khẩu\", function () {\r\n    pm.response.to.have.status(401);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"INVALID_CREDENTIALS\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"student@pks.test\",\r\n  \"password\": \"SaiMatKhau@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Get Me - Success",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lấy profile thành công 200\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data).to.have.property(\"fullName\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Get Me - Unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn truy cập 401 khi thiếu Token\", function () {\r\n    pm.response.to.have.status(401);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"UNAUTHORIZED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Kiểm thử luồng Đăng ký (kiểm tra email trùng lặp, validation Zod), Đăng nhập (Student & Admin, xử lý sai mật khẩu), và lấy thông tin cá nhân /auth/me. Chạy request Login sẽ tự động gán token vào Environment."
+    },
+    {
+      "name": "3. Enrollments (Student)",
+      "item": [
+        {
+          "name": "1. Enroll - 201 suất cuối khóa React",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ghi danh suất cuối thành công 201\", function () {\r\n    pm.response.to.have.status(201);\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.true;\r\n    pm.expect(res.data).to.have.property(\"id\");\r\n    pm.expect(res.data.status).to.eql(\"ACTIVE\");\r\n    pm.expect(res.data.course.id).to.eql(pm.environment.get(\"courseLastSlotId\"));\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"courseId\": 2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Enroll - 409 đăng ký trùng",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn đăng ký trùng lặp 409 ALREADY_ENROLLED\", function () {\r\n    pm.response.to.have.status(409);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"ALREADY_ENROLLED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"courseId\": 2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Enroll - 409 hết chỗ",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn ghi danh khi đã hết chỗ 409 COURSE_FULL\", function () {\r\n    pm.response.to.have.status(409);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"COURSE_FULL\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"courseId\":1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Enroll - 404 không tồn tại",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 404 khi khóa không tồn tại\", function () {\r\n    pm.response.to.have.status(404);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"NOT_FOUND\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"courseId\": 99999\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Enroll - 404 khóa đã ẩn",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 404 khi cố tình đăng ký khóa ẩn\", function () {\r\n    pm.response.to.have.status(404);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"NOT_FOUND\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"courseId\": {{courseHiddenId}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Enroll - 400 thiếu courseId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 400 Validation khi thiếu courseId\", function () {\r\n    pm.response.to.have.status(400);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"VALIDATION_ERROR\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Enroll - 401 không token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 401 Unauthorized khi thiếu token\", function () {\r\n    pm.response.to.have.status(401);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"UNAUTHORIZED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"courseId\": {{courseLastSlotId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8. Enroll - 403 dùng token Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 403 Forbidden khi Admin cố ghi danh học viên\", function () {\r\n    pm.response.to.have.status(403);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"FORBIDDEN\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"courseId\": {{courseLastSlotId}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. My enrollments - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lấy danh sách khóa đã ghi danh thành công 200\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data).to.be.an(\"array\");\r\n    pm.expect(res.data.length).to.be.at.least(1);\r\n    \r\n    // Kiểm tra có chứa đúng khóa React vừa đăng ký ở Request 1\r\n    const enrolledReact = res.data.some(e => e.course.id === pm.environment.get(\"courseLastSlotId\"));\r\n    pm.expect(enrolledReact).to.be.true;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10. My enrollments - 401 không token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 401 khi xem danh sách mà chưa đăng nhập\", function () {\r\n    pm.response.to.have.status(401);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"UNAUTHORIZED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "enrollments",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "**Yêu cầu:** Chạy npm run db:seed trước khi test folder này. Kiểm thử toàn diện nghiệp vụ cốt lõi: ghi danh suất cuối cùng, chặn đăng ký trùng (409), chặn khi hết chỗ (409), chặn xem khóa ẩn (404), và API khóa học của tôi /enrollments/me.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{studentToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "4. Admin - Courses",
+      "item": [
+        {
+          "name": "1. Admin list - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 & thấy được tất cả 6 khóa (gồm cả khóa ẩn)\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data.length).to.eql(6);\r\n    \r\n    // Tự động tìm khóa bị ẩn để lưu chính xác courseHiddenId\r\n    const hiddenCourse = res.data.find(c => c.isHidden === true);\r\n    if (hiddenCourse) {\r\n        pm.environment.set(\"courseHiddenId\", hiddenCourse.id);\r\n        console.log(\"Đã cập nhật courseHiddenId:\", hiddenCourse.id);\r\n    }\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Create - 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tạo khóa học thành công 201 & tự động lưu createdCourseId\", function () {\r\n    pm.response.to.have.status(201);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data).to.have.property(\"id\");\r\n    pm.expect(res.data.name).to.eql(\"DevOps & Docker Nâng cao\");\r\n    \r\n    // Lưu lại ID vừa tạo để dùng cho các request Update, Delete phía sau\r\n    pm.environment.set(\"createdCourseId\", res.data.id);\r\n    console.log(\"Đã lưu createdCourseId:\", res.data.id);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"DevOps & Docker Nâng cao\",\r\n  \"category\": \"Điện toán đám mây\",\r\n  \"instructor\": \"Nguyễn Hoàng Long\",\r\n  \"shortDescription\": \"Làm chủ Docker, CI/CD và triển khai thực tế.\",\r\n  \"description\": \"Khóa học thực chiến toàn diện từ Dockerfile, Docker Compose đến GitHub Actions và triển khai lên máy chủ Linux.\",\r\n  \"tuitionFee\": 4500000,\r\n  \"capacity\": 20\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Create - 400 capacity: 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 400 khi capacity = 0\", function () {\r\n    pm.response.to.have.status(400);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"VALIDATION_ERROR\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Khóa học test lỗi\",\r\n  \"category\": \"Lập trình Web\",\r\n  \"instructor\": \"Test\",\r\n  \"shortDescription\": \"Test\",\r\n  \"description\": \"Test\",\r\n  \"tuitionFee\": 1000000,\r\n  \"capacity\": 0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Create - 403 token Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn 403 Forbidden khi Student gọi route Admin\", function () {\r\n    pm.response.to.have.status(403);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"FORBIDDEN\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"DevOps & Docker Nâng cao\",\r\n  \"category\": \"Điện toán đám mây\",\r\n  \"instructor\": \"Nguyễn Hoàng Long\",\r\n  \"shortDescription\": \"Làm chủ Docker, CI/CD và triển khai thực tế.\",\r\n  \"description\": \"Khóa học thực chiến toàn diện từ Dockerfile, Docker Compose đến GitHub Actions và triển khai lên máy chủ Linux.\",\r\n  \"tuitionFee\": 4500000,\r\n  \"capacity\": 20\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Create - 401 no token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn 401 Unauthorized khi không gửi token\", function () {\r\n    pm.response.to.have.status(401);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"UNAUTHORIZED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"DevOps & Docker Nâng cao\",\r\n  \"category\": \"Điện toán đám mây\",\r\n  \"instructor\": \"Nguyễn Hoàng Long\",\r\n  \"shortDescription\": \"Làm chủ Docker, CI/CD và triển khai thực tế.\",\r\n  \"description\": \"Khóa học thực chiến toàn diện từ Dockerfile, Docker Compose đến GitHub Actions và triển khai lên máy chủ Linux.\",\r\n  \"tuitionFee\": 4500000,\r\n  \"capacity\": 20\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Update - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cập nhật khóa học thành công 200\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data.name).to.include(\"(Updated)\");\r\n    pm.expect(res.data.capacity).to.eql(25);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"DevOps & Docker CI/CD Thực chiến (Updated)\",\r\n  \"category\": \"Điện toán đám mây\",\r\n  \"instructor\": \"Nguyễn Hoàng Long\",\r\n  \"shortDescription\": \"Làm chủ Docker, CI/CD nâng cao.\",\r\n  \"description\": \"Nội dung khóa học đã được cập nhật chuẩn doanh nghiệp.\",\r\n  \"tuitionFee\": 5000000,\r\n  \"capacity\": 25\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{createdCourseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{createdCourseId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Update - 409 capacity low",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn 409 khi capacity nhỏ hơn enrolledCount\", function () {\r\n    pm.response.to.have.status(409);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"CAPACITY_BELOW_ENROLLED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Node.js & Express Backend\",\r\n  \"category\": \"Lập trình Web\",\r\n  \"instructor\": \"Lê Hoàng Nam\",\r\n  \"shortDescription\": \"Khóa học backend\",\r\n  \"description\": \"Chi tiết khóa học\",\r\n  \"tuitionFee\": 4000000,\r\n  \"capacity\": 3\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{courseNormalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{courseNormalId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8. Visibility - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ẩn khóa học thành công\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data.isHidden).to.be.true;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"isHidden\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{createdCourseId}}/visibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{createdCourseId}}",
+                "visibility"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. Delete - 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn 409 khi xóa khóa đã có học viên\", function () {\r\n    pm.response.to.have.status(409);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"COURSE_HAS_ENROLLMENTS\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{courseNormalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{courseNormalId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "10. Delete - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Xóa khóa học trống thành công 200\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.true;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{createdCourseId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{createdCourseId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Kiểm thử phân quyền RBAC (chặn Student 403, chặn khách 401) và nghiệp vụ quản trị: thêm, sửa, xóa khóa học, ẩn/hiện khóa học. Kiểm tra nghiệp vụ chặn hạ capacity thấp hơn số học viên đã ghi danh (409).",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "5. Admin - Enrollments",
+      "item": [
+        {
+          "name": "1. Enrollments of course - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200 & trả về đúng 20 học viên đã ghi danh\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.true;\r\n    pm.expect(res.data).to.have.property(\"course\");\r\n    pm.expect(res.data.total).to.eql(20);\r\n    pm.expect(res.data.enrollments).to.be.an(\"array\");\r\n    pm.expect(res.data.enrollments.length).to.eql(20);\r\n\r\n    const student = res.data.enrollments[0];\r\n    pm.expect(student).to.have.property(\"fullName\");\r\n    pm.expect(student).to.have.property(\"email\");\r\n    pm.expect(student).to.have.property(\"enrolledAt\");\r\n    pm.expect(student).to.have.property(\"status\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{courseFullId}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{courseFullId}}",
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Enrollments of course - 403 token Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Chặn 403 Forbidden khi Student cố xem danh sách lớp\", function () {\r\n    pm.response.to.have.status(403);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"FORBIDDEN\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{studentToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/{{courseFullId}}/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "{{courseFullId}}",
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Enrollments of course - 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 404 khi tra cứu khóa học không tồn tại\", function () {\r\n    pm.response.to.have.status(404);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"NOT_FOUND\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/courses/99999/enrollments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "courses",
+                "99999",
+                "enrollments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Kiểm tra quyền quản trị viên xem danh sách học viên theo từng khóa học cụ thể (/admin/courses/:id/enrollments) và kiểm tra chặn quyền truy cập của học viên thường (403).",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{adminToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "2. Courses (Public)",
+      "item": [
+        {
+          "name": "1. List - 200 all",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code 200 & trả về mảng 5 khóa học\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.true;\r\n    pm.expect(res.data).to.be.an(\"array\");\r\n    // Khóa bị ẩn (Mini-ERP) không được xuất hiện -> đúng 5 khóa\r\n    pm.expect(res.data.length).to.eql(5);\r\n});\r\n\r\npm.test(\"Tự động trích xuất các ID khóa học vào Environment\", function () {\r\n    const courses = pm.response.json().data;\r\n    \r\n    const full = courses.find(c => c.name.includes(\"MOS Excel\"));\r\n    const lastSlot = courses.find(c => c.name.includes(\"ReactJS\"));\r\n    const normal = courses.find(c => c.name.includes(\"Node.js\"));\r\n\r\n    if (full) pm.environment.set(\"courseFullId\", full.id);\r\n    if (lastSlot) pm.environment.set(\"courseLastSlotId\", lastSlot.id);\r\n    if (normal) pm.environment.set(\"courseNormalId\", normal.id);\r\n    \r\n    // Khóa Mini-ERP bị ẩn nên theo thứ tự seed có ID là 6\r\n    pm.environment.set(\"courseHiddenId\", 6);\r\n    \r\n    console.log(\"Đã cập nhật tự động các courseId vào Environment!\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. List - 200 find ?search=react",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tìm kiếm thành công theo từ khóa 'react'\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data.length).to.be.at.least(1);\r\n    \r\n    res.data.forEach(course => {\r\n        pm.expect(course.name.toLowerCase()).to.include(\"react\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": ""
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses?search=react",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "react"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. List - 200 ?category=Lap trinh web",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lọc chính xác theo danh mục\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data.length).to.be.at.least(1);\r\n    res.data.forEach(course => {\r\n        pm.expect(course.category).to.eql(\"Lập trình Web\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses?category=Lập trình Web",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "Lập trình Web"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. List - 200 no data ?search=zzzzz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Trả về mảng rỗng [] khi không tìm thấy\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.true;\r\n    pm.expect(res.data).to.be.an(\"array\").that.is.empty;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses?search=zzzzz",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "zzzzz"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Categories - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lấy danh mục thành công, không trùng lặp\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data).to.be.an(\"array\");\r\n    pm.expect(res.data).to.include(\"Lập trình Web\");\r\n    pm.expect(res.data).to.include(\"Tin học quốc tế MOS\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6. Detail - 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Xem chi tiết khóa học thành công\", function () {\r\n    pm.response.to.have.status(200);\r\n    const res = pm.response.json();\r\n    pm.expect(res.data.id).to.eql(pm.environment.get(\"courseNormalId\"));\r\n    pm.expect(res.data).to.have.property(\"status\");\r\n    pm.expect(res.data).to.have.property(\"availableSeats\");\r\n    pm.expect(res.data).to.have.property(\"isEnrolled\", false);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseNormalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "{{courseNormalId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7. Detail - 404 doesnt exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 404 khi ID không tồn tại\", function () {\r\n    pm.response.to.have.status(404);\r\n    const res = pm.response.json();\r\n    pm.expect(res.success).to.be.false;\r\n    pm.expect(res.code).to.eql(\"NOT_FOUND\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "99999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8. Detail - 404 hidden lock",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 404 khi truy cập khóa học bị ẩn\", function () {\r\n    pm.response.to.have.status(404);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"NOT_FOUND\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseHiddenId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "{{courseHiddenId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9. Detail - 400 wrong id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Báo lỗi 400 Validation khi ID là chữ\", function () {\r\n    pm.response.to.have.status(400);\r\n    const res = pm.response.json();\r\n    pm.expect(res.code).to.eql(\"VALIDATION_ERROR\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Kiểm thử các API công khai: danh sách khóa học (chỉ hiển thị khóa isHidden = false), tìm kiếm theo tên, lọc theo danh mục, trường hợp không tìm thấy dữ liệu (mảng rỗng), và chi tiết khóa học."
+    }
+  ]
+}
