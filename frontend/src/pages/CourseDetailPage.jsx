@@ -6,6 +6,7 @@ import ErrorState from '../components/ui/ErrorState';
 import Skeleton from '../components/ui/Skeleton';
 import { useAuth } from '../hooks/useAuth';
 import { useCourse } from '../hooks/useCourses';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useEnroll } from '../hooks/useEnrollments';
 import { formatCurrency } from '../lib/format';
 
@@ -41,6 +42,7 @@ export default function CourseDetailPage() {
     isFetching,
   } = useCourse(id, { userId: user?.id, enabled: !authLoading });
   const enroll = useEnroll();
+  useDocumentTitle(course?.name ?? 'Chi tiết khóa học');
 
   const backLink = (
     <Link to="/" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
@@ -114,7 +116,7 @@ export default function CourseDetailPage() {
   }
 
   return (
-    <div>
+    <div className="pb-24 lg:pb-0">
       <div className="mb-6">{backLink}</div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
@@ -150,8 +152,19 @@ export default function CourseDetailPage() {
             </p>
           </div>
 
-          <div className="mt-6">{action}</div>
+          <div className="mt-6 hidden lg:block">{action}</div>
         </aside>
+      </div>
+
+      {/* Mobile: nút ghi danh luôn nằm sát đáy màn hình, không phải cuộn xuống mới thấy */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-6xl items-center gap-4">
+          <div className="shrink-0">
+            <p className="text-xs text-slate-500">Học phí</p>
+            <p className="text-lg font-bold text-slate-900">{formatCurrency(course.tuitionFee)}</p>
+          </div>
+          <div className="min-w-0 flex-1">{action}</div>
+        </div>
       </div>
     </div>
   );
