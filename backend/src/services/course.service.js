@@ -93,9 +93,10 @@ async function setVisibility(id, isHidden) {
 
 async function remove(id) {
   try {
-    await prisma.course.delete({ where: { id } });
+    await prisma.course.delete({ where: { id: Number(id) } });
   } catch (err) {
-    if (err.code === 'P2003') {
+    // Bắt cả P2003 (Foreign key) và P2014 (Required relation)
+    if (err.code === 'P2003' || err.code === 'P2014') {
       throw new ConflictError(
         'Khóa học đã có học viên ghi danh, hãy ẩn khóa học thay vì xóa',
         'COURSE_HAS_ENROLLMENTS',

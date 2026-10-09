@@ -9,7 +9,9 @@ function normalize(err) {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === 'P2002') return new ConflictError('Dữ liệu đã tồn tại', 'DUPLICATE');
     if (err.code === 'P2025') return new NotFoundError('Không tìm thấy dữ liệu');
-    if (err.code === 'P2003') return new ConflictError('Dữ liệu đang được tham chiếu', 'IN_USE');
+    if (err.code === 'P2003' || err.code === 'P2014') {
+      return new ConflictError('Dữ liệu đang được tham chiếu', 'IN_USE');
+    }
   }
   return null; // lỗi không lường trước
 }
