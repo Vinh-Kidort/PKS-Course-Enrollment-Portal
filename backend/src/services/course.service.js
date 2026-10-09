@@ -87,23 +87,29 @@ async function update(id, data) {
 }
 
 async function setVisibility(id, isHidden) {
-  // Không tồn tại thì Prisma ném P2025, errorHandler đổi thành 404
   return toCourseDTO(await prisma.course.update({ where: { id }, data: { isHidden } }));
 }
 
 async function remove(id) {
-  try {
-    await prisma.course.delete({ where: { id: Number(id) } });
-  } catch (err) {
-    // Bắt cả P2003 (Foreign key) và P2014 (Required relation)
-    if (err.code === 'P2003' || err.code === 'P2014') {
-      throw new ConflictError(
-        'Khóa học đã có học viên ghi danh, hãy ẩn khóa học thay vì xóa',
-        'COURSE_HAS_ENROLLMENTS',
-      );
-    }
-    throw err;
+  const courseId = Number(id);
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    select: { id: true, enrolledCount: true },
+  });
+
+  if (!course) {
+    throw new NotFoundError('Không tìm thấy khóa học');
   }
+
+  if (course.enrolledCount > 0) {
+    throw new ConflictError(
+      'Khóa học đã có học viên ghi danh, hãy ẩn khóa học thay vì xóa',
+      'COURSE_HAS_ENROLLMENTS',
+    );
+  }
+
+  await prisma.course.delete({ where: { id: courseId } });
 }
 
 module.exports = { listPublic, listCategories, getPublicById, listAll, create, update, setVisibility, remove };
