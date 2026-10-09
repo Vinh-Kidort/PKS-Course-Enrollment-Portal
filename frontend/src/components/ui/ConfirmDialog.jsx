@@ -17,7 +17,7 @@ export default function ConfirmDialog({
       onClose={loading ? () => {} : onCancel}
       footer={
         <>
-          <Button variant="secondary" onClick={onCancel} disabled={loading}>
+          <Button variant="secondary" onClick={onCancel} disabled={loading} data-autofocus>
             Hủy
           </Button>
           <Button variant="danger" onClick={onConfirm} loading={loading}>
